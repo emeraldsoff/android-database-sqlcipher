@@ -1,10 +1,11 @@
 apply plugin: "com.android.library"
+apply plugin: "org.ec4j.editorconfig"
 apply from: "native.gradle"
 apply from: "maven.gradle"
 
 android {
 
-  compileSdkVersion 26
+  compileSdkVersion "${compileAndroidSdkVersion}" as Integer
 
   defaultConfig {
     versionName "${clientVersionNumber}"
@@ -12,6 +13,11 @@ android {
     targetSdkVersion "${targetAndroidSdkVersion}"
     versionCode 1
     versionName "${clientVersionNumber}"
+  }
+
+  editorconfig {
+   includes = ["src/**", "*.gradle"]
+   excludes = ["src/main/external/sqlcipher/**", "src/main/external/openssl-*/**"]
   }
 
   buildTypes {
@@ -31,12 +37,13 @@ android {
   }
 
   clean.dependsOn cleanNative
-
-  preBuild.dependsOn([buildOpenSSL, buildAmalgamation])
+  check.dependsOn editorconfigCheck
+  buildNative.mustRunAfter buildAmalgamation
+  buildAmalgamation.mustRunAfter buildOpenSSL
+  preBuild.dependsOn([buildOpenSSL, buildAmalgamation, buildNative])
 
   afterEvaluate {
     android.libraryVariants.all { variant ->
-      variant.javaCompile.dependsOn(buildNative)
       variant.outputs.each { output ->
         def outputFile = output.outputFile
         if (outputFile != null && outputFile.name.endsWith(".aar")) {

@@ -8,7 +8,8 @@ task buildOpenSSL () {
       workingDir "${projectDir}"
       commandLine "./build-openssl-libraries.sh",
       "${minimumAndroidSdkVersion}",
-      "${minimumAndroid64BitSdkVersion}"
+      "${minimumAndroid64BitSdkVersion}",
+      "${opensslVersion}"
     }
   }
 }
@@ -39,12 +40,14 @@ task buildNative() {
       "${nativeRootOutputDir}/libs32",
       file("src/main/cpp").absolutePath,
       file("src/main/cpp/Application32.mk").absolutePath,
-      "${sqlcipherCFlags}", "${otherSqlcipherCFlags}")
+            "${sqlcipherCFlags}", "${otherSqlcipherCFlags}",
+            "${minimumAndroidSdkVersion}")
     executeNdkBuild(
       "${nativeRootOutputDir}/libs64",
       file("src/main/cpp").absolutePath,
       file("src/main/cpp/Application64.mk").absolutePath,
-      "${sqlcipherCFlags}", "${otherSqlcipherCFlags}")
+            "${sqlcipherCFlags}", "${otherSqlcipherCFlags}",
+            "${minimumAndroid64BitSdkVersion}")
     exec {
       workingDir "${nativeRootOutputDir}"
       commandLine "mkdir", "-p", "libs"
@@ -114,7 +117,7 @@ def gitClean(directory) {
 }
 
 def executeNdkBuild(outputDir, androidMkDirectory, applicationMkFile,
-                    cflags, otherSqlcipherCFlags) {
+                    cflags, otherSqlcipherCFlags, androidVersion) {
   logger.info "Executing NDK build command"
   exec {
     def outputDirectory = "NDK_LIBS_OUT=${outputDir}"
@@ -123,7 +126,8 @@ def executeNdkBuild(outputDir, androidMkDirectory, applicationMkFile,
                                 "OPENSSL_DIR": "${opensslDir}",
                                 "SQLCIPHER_DIR": "${sqlcipherDir}",
                                 "SQLCIPHER_OTHER_CFLAGS" : "${otherSqlcipherCFlags}",
-                                "ANDROID_NATIVE_ROOT_DIR": "${androidNativeRootDir}"]
+                                "ANDROID_NATIVE_ROOT_DIR": "${androidNativeRootDir}",
+                                "NDK_APP_PLATFORM": "${androidVersion}"]
     environment(environmentVariables)
     commandLine "ndk-build", "${ndkBuildType}",
     "--environment-overrides", outputDirectory,

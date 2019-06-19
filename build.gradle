@@ -4,9 +4,13 @@ buildscript {
   repositories {
     google()
     jcenter()
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    }
   }
   dependencies {
-    classpath 'com.android.tools.build:gradle:3.2.0'
+    classpath "com.android.tools.build:gradle:3.2.0"
+    classpath "gradle.plugin.org.ec4j.gradle:editorconfig-gradle-plugin:0.0.3"
   }
 }
 
@@ -18,7 +22,7 @@ allprojects {
 }
 
 ext {
-  clientVersionNumber = "4.0.1"
+  clientVersionNumber = "4.2.0"
   mavenPackaging = "aar"
   mavenGroup = "net.zetetic"
   mavenArtifactId = "android-database-sqlcipher"
@@ -55,11 +59,12 @@ ext {
   minimumAndroidSdkVersion = 14
   minimumAndroid64BitSdkVersion = 21
   targetAndroidSdkVersion = 26
+  compileAndroidSdkVersion = 26
   mainProjectName = "android-database-sqlcipher"
   nativeRootOutputDir = "${projectDir}/${mainProjectName}/src/main"
   androidNativeRootDir = "${nativeRootOutputDir}/external/android-libs"
   sqlcipherDir = "${projectDir}/${mainProjectName}/src/main/external/sqlcipher"
-  opensslVersion = "1.1.1"
+  opensslVersion = "1.1.1b"
   opensslDir = "${projectDir}/${mainProjectName}/src/main/external/openssl-${opensslVersion}"
   if(project.hasProperty('debugBuild') && debugBuild.toBoolean()) {
     otherSqlcipherCFlags = ""
